@@ -1,5 +1,6 @@
 import * as yup from 'yup';
 
+
 export default async (inputUrlObj, state) => {
 
   const schema = yup.object({
@@ -8,19 +9,23 @@ export default async (inputUrlObj, state) => {
 
   schema.validate(inputUrlObj, { abortEarly: false })
   .then(() => {
-    console.log('url valide');
     if (state.links.includes(inputUrlObj.url)) {
-      state.form.isValid = false;
-      state.form.validationErrors = 'RSS уже существует';
+      state.form = {
+        isValid: false,
+        validationResult: 'urlExist',
+      }
     } else {
-      state.form.isValid = true;
       state.links.push(inputUrlObj.url);
-      console.log(state.links);
+      state.form = {
+        isValid: true,
+        validationResult: 'urlAdded',
+      };
     }
-
   })
-  .catch((e) => {
-    state.form.isValid = false;
-    state.form.validationErrors = 'Ссылка должна быть валидным URL';
+  .catch(() => {
+    state.form = {
+      isValid: false,
+      validationResult: 'urlValidationError',
+    }
   });
 }
