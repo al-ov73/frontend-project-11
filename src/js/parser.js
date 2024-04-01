@@ -23,7 +23,6 @@ export default async (state) => {
           source: doc.querySelector('title').textContent,
           posts: postsInLink,
         }
-        return postsInLink;
       });
   });
   const promise =  Promise.all(promises);
