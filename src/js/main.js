@@ -4,7 +4,9 @@ import i18next from 'i18next';
 import ru from '../../locales/ru.js';
 import '../scss/styles.scss';
 import validate from '../js/validator.js';
-import renderForm from '../js/render.js';
+import { renderForm, renderLinks } from '../js/render.js';
+import parseLinks from '../js/parser.js';
+
 
 export default async () => {
   const i18nextInstance = i18next.createInstance();
@@ -24,10 +26,14 @@ export default async () => {
     links: [],
   };
 
-  const watchedState = onChange(state, (path, value, previousValue) => {
-    console.log('state to render:', state);
-    renderForm(state, i18nextInstance)
-    console.log('state changed!', path, 'from', previousValue, 'to', value);
+  const watchedState = onChange(state, async (path, value, previousValue) => {
+    if (path === 'form') {
+      renderForm(state, i18nextInstance);
+    }
+    if (path === 'links') {
+      parseLinks(state)
+      .then((newsList) => renderLinks(newsList));
+    }
   });
 
   const form = document.querySelector('form');
@@ -37,5 +43,4 @@ export default async () => {
     const inputUrlObj = Object.fromEntries(formData);
     validate(inputUrlObj, watchedState);
   });
-  
 }

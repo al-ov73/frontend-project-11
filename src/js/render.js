@@ -1,5 +1,4 @@
-export default (state, i18nextInstance) => {
-  console.log(state)
+const renderForm = (state, i18nextInstance) => {
   const form = document.querySelector('form');
   const feedbackEl = document.querySelector('.feedback');
   const feedback = state.form.validationResult;
@@ -17,3 +16,12 @@ export default (state, i18nextInstance) => {
     feedbackEl.textContent = i18nextInstance.t(`formMsgs.${feedback}`);
   }
 };
+
+const renderLinks = (links) => {
+  console.log(links[0].source)
+  links[0].posts.forEach((post) => {
+    console.log(post.title)
+  })
+};
+
+export { renderForm, renderLinks };
