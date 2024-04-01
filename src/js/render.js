@@ -18,7 +18,9 @@ const renderForm = (state, i18nextInstance) => {
 };
 
 const renderLinks = (links) => {
-  console.log(links[0].source)
+  const postsEl = document.querySelector('div.posts');
+  const feedsEl = document.querySelector('div.feeds');
+  console.log(postsEl, feedsEl);
   links[0].posts.forEach((post) => {
     console.log(post.title)
   })
