@@ -7,6 +7,25 @@ import validate from '../js/validator.js';
 import { renderForm, renderLinks } from '../js/render.js';
 import parseLinks from '../js/parser.js';
 
+const getDataFromLinks = async (state) => {
+  const links = state.links;
+  const promises = links.map((link) => {
+    return fetch(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}`)
+      .then(response => {
+        if (response.ok) {
+          return response.json()
+        }
+        throw new Error('Network response was not ok.')
+      })
+    })
+  return Promise.all(promises)
+  .then((feeds) => {
+    let content = [];
+    feeds.forEach((feed) => content.push(feed))
+    return content;
+  });
+} 
+
 
 export default async () => {
   const i18nextInstance = i18next.createInstance();
@@ -31,7 +50,8 @@ export default async () => {
       renderForm(state, i18nextInstance);
     }
     if (path === 'links') {
-      parseLinks(state)
+      getDataFromLinks(state)
+      .then((data) => parseLinks(data))
       .then((newsList) => renderLinks(newsList));
     }
   });

@@ -37,11 +37,23 @@ const renderPosts = (container, feeds) => {
   feeds.forEach((feed) => {
     feed.posts.forEach((post) => {
       const liEl = document.createElement('li');
-      liEl.classList.add('list-group-item', 'border-0', 'border-end-0');
-      const h3El = document.createElement('h3');
-      h3El.classList.add('h6', 'm-0');
-      h3El.textContent = post.title;
-      liEl.appendChild(h3El);
+      liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+      const aEl = document.createElement('a');
+      aEl.classList.add('fw-bold')
+      aEl.href = post.link;
+      aEl.textContent = post.title;
+      aEl.target = '_blank'
+      liEl.appendChild(aEl);
+      
+      const buttonEl = document.createElement('button');
+      buttonEl.type = 'button';
+      buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+      buttonEl.dataset.id = post.id;
+      buttonEl.dataset.bsToggle = 'modal';
+      buttonEl.dataset.bsModal = '#modal';
+      buttonEl.textContent = 'Просмотр';
+      liEl.appendChild(buttonEl);
+      
       ulEl.appendChild(liEl);
     });
   });
