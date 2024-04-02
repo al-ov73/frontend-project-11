@@ -15,7 +15,8 @@ const config = {
     devServer: {
         static: path.resolve(__dirname, 'dist'),
         port: 8080,
-        hot: true
+        hot: true,
+        allowedHosts: "all",
     },
     plugins: [
         new HtmlWebpackPlugin({

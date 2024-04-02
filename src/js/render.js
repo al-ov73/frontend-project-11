@@ -17,36 +17,23 @@ const renderForm = (state, i18nextInstance) => {
   }
 };
 
-const renderLinks = (feeds) => {
-  const postsEl = document.querySelector('div.posts');
-  postsEl.textContent = '';
-  const cardBorderElposts = document.createElement('div');
-  cardBorderElposts.classList.add('card', 'border-0');
-  const cardBodyElposts = document.createElement('div');
-  cardBodyElposts.classList.add('card-body');
-  const h2Elposts = document.createElement('h2')
-  h2Elposts.classList.add('card-title', 'h4');
-  h2Elposts.textContent = 'Посты';
-  cardBodyElposts.appendChild(h2Elposts);
-  cardBorderElposts.appendChild(cardBodyElposts)
-  postsEl.appendChild(cardBorderElposts);
+const renderContainer = (container, title) => {
+  container.textContent = '';
+  const cardBorderEl = document.createElement('div');
+  cardBorderEl.classList.add('card', 'border-0');
+  const cardBodyEl = document.createElement('div');
+  cardBodyEl.classList.add('card-body');
+  const h2El = document.createElement('h2')
+  h2El.classList.add('card-title', 'h4');
+  h2El.textContent = title;
+  cardBodyEl.appendChild(h2El);
+  cardBorderEl.appendChild(cardBodyEl)
+  container.appendChild(cardBorderEl);
+}
 
-
-  const feedsEl = document.querySelector('div.feeds');
-  feedsEl.textContent = '';
-  const cardBorderElfeeds = document.createElement('div');
-  cardBorderElfeeds.classList.add('card', 'border-0');
-  const cardBodyElfeeds = document.createElement('div');
-  cardBodyElfeeds.classList.add('card-body');
-  const h2Elfeeds = document.createElement('h2')
-  h2Elfeeds.classList.add('card-title', 'h4');
-  h2Elfeeds.textContent = 'Фиды';
-  cardBodyElfeeds.appendChild(h2Elfeeds);
-  cardBorderElfeeds.appendChild(cardBodyElfeeds)
-  feedsEl.appendChild(cardBorderElfeeds);
-
-  const ulElposts = document.createElement('ul');
-  ulElposts.classList.add('list-group', 'border-0', 'rounded-0');
+const renderPosts = (container, feeds) => {
+  const ulEl = document.createElement('ul');
+  ulEl.classList.add('list-group', 'border-0', 'rounded-0');
   feeds.forEach((feed) => {
     feed.posts.forEach((post) => {
       const liEl = document.createElement('li');
@@ -55,15 +42,15 @@ const renderLinks = (feeds) => {
       h3El.classList.add('h6', 'm-0');
       h3El.textContent = post.title;
       liEl.appendChild(h3El);
-      ulElposts.appendChild(liEl);
-    })
+      ulEl.appendChild(liEl);
+    });
+  });
+  container.appendChild(ulEl);
+}
 
-  })
-  cardBorderElposts.appendChild(ulElposts)
-
-
-  const ulElfeeds = document.createElement('ul');
-  ulElfeeds.classList.add('list-group', 'border-0', 'rounded-0');
+const renderFeeds = (container, feeds) => {
+  const ulEl = document.createElement('ul');
+  ulEl.classList.add('list-group', 'border-0', 'rounded-0');
   feeds.forEach((feed) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'border-0', 'border-end-0');
@@ -71,14 +58,22 @@ const renderLinks = (feeds) => {
     h3El.classList.add('h6', 'm-0');
     h3El.textContent = feed.source;
     liEl.appendChild(h3El);
-    ulElfeeds.appendChild(liEl);
+    ulEl.appendChild(liEl);
   })
-  cardBorderElfeeds.appendChild(ulElfeeds)
+  container.appendChild(ulEl)
+}
 
-  // console.log(postsEl, feedsEl);
-  // links[0].posts.forEach((post) => {
-  //   console.log(post.title)
-  // })
+const renderLinks = (feeds) => {
+  const postsEl = document.querySelector('div.posts');
+  const feedsEl = document.querySelector('div.feeds');
+  renderContainer(postsEl, 'Посты');
+  renderContainer(feedsEl, 'Фиды');
+
+  const cardBorderElposts = postsEl.querySelector('.border-0');
+  renderPosts(cardBorderElposts, feeds);
+
+  const cardBorderElfeeds = feedsEl.querySelector('.border-0')
+  renderFeeds(cardBorderElfeeds, feeds);
 };
 
 export { renderForm, renderLinks };
