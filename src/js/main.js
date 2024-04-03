@@ -4,7 +4,7 @@ import i18next from 'i18next';
 import ru from '../../locales/ru.js';
 import '../scss/styles.scss';
 import validate from '../js/validator.js';
-import { renderForm, renderLinks } from '../js/render.js';
+import { renderForm, renderLinks, renderModal } from '../js/render.js';
 import parseLinks from '../js/parser.js';
 
 const getDataFromLinks = async (state) => {
@@ -45,14 +45,56 @@ export default async () => {
     links: [],
   };
 
+  const findPostById = (posts, id) => {
+    let result = null;
+    posts.forEach((post) => {
+      if (post.id === id) {
+        return result = post;
+      };
+    })
+    return result;
+  }
+
+  const addListenerToModalButtons = () => {
+    const modalDivEl = document.querySelector('div.modal');
+    const closeButtons = modalDivEl.querySelectorAll('button');
+    closeButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        modalDivEl.classList.remove('show');
+        modalDivEl.removeAttribute('role');
+        modalDivEl.setAttribute('style', 'display: none;');
+      })
+    })
+  }
+  
+  const addListenerToButtons = (content) => {
+    const buttons = document.querySelectorAll('button[data-bs-toggle]');
+    buttons.forEach((button) => {
+      button.addEventListener('click', (e) => {
+        const buttonId = e.target.dataset.id;
+        const post = findPostById(content.posts, Number(buttonId));
+        renderModal(post);
+        addListenerToModalButtons();
+      })
+    })
+  }
+  
   const watchedState = onChange(state, async (path, value, previousValue) => {
     if (path === 'form') {
       renderForm(state, i18nextInstance);
     }
     if (path === 'links') {
+
+    const renderPosts = async () => {
       getDataFromLinks(state)
-      .then((data) => parseLinks(data))
-      .then((newsList) => renderLinks(newsList));
+        .then((data) => parseLinks(data))
+        .then((newsList) => renderLinks(newsList))
+        .then((newsList) => addListenerToButtons(newsList))
+        // .then(() => setTimeout(renderPosts, 5000))
+    };
+
+    setTimeout(renderPosts, 5000)
+
     }
   });
 
@@ -63,4 +105,6 @@ export default async () => {
     const inputUrlObj = Object.fromEntries(formData);
     validate(inputUrlObj, watchedState);
   });
+
+
 }
