@@ -95,6 +95,11 @@ const renderModal = (post) => {
   const currentModal = document.querySelector('.modal');
   currentModal.remove();
 
+  const postsEl = document.querySelector('div.posts');
+  const checkedPost = postsEl.querySelector(`a[data-id="${post.id}"]`);
+  checkedPost.removeAttribute('class');
+  checkedPost.classList.add('fw-normal', 'link-secondary');
+
   const modalDivEl = document.createElement('div');
   modalDivEl.classList.add('modal', 'fade', 'show');
   modalDivEl.setAttribute('id', 'modal');
