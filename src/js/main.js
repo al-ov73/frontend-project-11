@@ -3,12 +3,12 @@ import i18next from 'i18next';
 
 import ru from '../../locales/ru.js';
 import '../scss/styles.scss';
-import validate from '../js/validator.js';
+import validateUrl from '../js/validator.js';
 import { renderForm, renderLinks, renderModal } from '../js/render.js';
 import parseLinks from '../js/parser.js';
 
 const getDataFromLinks = async (state) => {
-  const links = state.links;
+  const links = state.RssLinks;
   const promises = links.map((link) => {
     return fetch(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}`)
       .then(response => {
@@ -42,7 +42,7 @@ export default async () => {
       isValid: '',
       validationResult: '',
     },
-    links: [],
+    RssLinks: [],
   };
 
   const findPostById = (posts, id) => {
@@ -80,20 +80,20 @@ export default async () => {
   }
   
   const watchedState = onChange(state, async (path, value, previousValue) => {
+    console.log('state', state)
     if (path === 'form') {
       renderForm(state, i18nextInstance);
     }
-    if (path === 'links') {
+    if (path === 'RssLinks') {
+      const renderPosts = async () => {
+        getDataFromLinks(state)
+          .then((data) => parseLinks(data))
+          .then((newsList) => renderLinks(newsList))
+          .then((newsList) => addListenerToButtons(newsList))
+          .then(() => setTimeout(renderPosts, 5000))
+      };
 
-    const renderPosts = async () => {
-      getDataFromLinks(state)
-        .then((data) => parseLinks(data))
-        .then((newsList) => renderLinks(newsList))
-        .then((newsList) => addListenerToButtons(newsList))
-        // .then(() => setTimeout(renderPosts, 5000))
-    };
-
-    setTimeout(renderPosts, 5000)
+      setTimeout(renderPosts, 5000)
 
     }
   });
@@ -103,7 +103,7 @@ export default async () => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const inputUrlObj = Object.fromEntries(formData);
-    validate(inputUrlObj, watchedState);
+    validateUrl(inputUrlObj, watchedState);
   });
 
 

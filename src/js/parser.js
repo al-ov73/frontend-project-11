@@ -8,7 +8,7 @@ export default (data) => {
   };
   data.forEach((feed) => {
     const doc = parser.parseFromString(feed.contents, "application/xml");
-    const postsInFeed = [...doc.querySelectorAll('item')].slice(0, 5);
+    const postsInFeed = [...doc.querySelectorAll('item')];
     postsInFeed.forEach((post) => {
       const newsPost = {
         id: postId,
