@@ -6,6 +6,7 @@ export default {
       urlExist: 'RSS уже существует',
       urlAdded: 'RSS успешно загружен',
       notRss: 'Ресурс не содержит валидный RSS',
+      networkError: 'Ошибка сети',
     }
   }
 }
