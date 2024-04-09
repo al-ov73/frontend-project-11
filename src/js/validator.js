@@ -1,11 +1,13 @@
 import * as yup from 'yup';
+import axios from 'axios';
 
 const isRss = async (link) => {
   return fetch(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}`)
     .then((response) => response.json())
     .then((jsonResult) => {
       const parser = new DOMParser();
-      const doc = parser.parseFromString(jsonResult.contents, "application/xml");
+      const content = jsonResult.contents
+      const doc = parser.parseFromString(content, "text/html");
       if (doc.querySelector('channel')) {
         return true;
       }
@@ -29,7 +31,6 @@ export default async (inputUrlObj, state) => {
       } else {
         isRss(inputUrlObj.url)
         .then((RssValidatResult) => {
-          console.log('RssValidatResult', RssValidatResult)
           if (RssValidatResult) {
             state.form = {
               isValid: true,

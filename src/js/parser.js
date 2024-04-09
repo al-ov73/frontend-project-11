@@ -7,7 +7,7 @@ export default (data) => {
     posts: [],
   };
   data.forEach((feed) => {
-    const doc = parser.parseFromString(feed.contents, "application/xml");
+    const doc = parser.parseFromString(feed.contents, "text/html");
     const postsInFeed = [...doc.querySelectorAll('item')];
     postsInFeed.forEach((post) => {
       const newsPost = {
