@@ -2,7 +2,7 @@ import * as yup from 'yup';
 import axios from 'axios';
 
 const isRss = async (link) => {
-  return fetch(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(link)}`)
+  return fetch(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`)
     .then(response => {
       if (response.ok) return response.json()
       throw new Error('Network response was not ok.')
