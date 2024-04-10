@@ -29,7 +29,7 @@ const renderContainer = (container, title) => {
   cardBodyEl.appendChild(h2El);
   cardBorderEl.appendChild(cardBodyEl);
   container.appendChild(cardBorderEl);
-}
+};
 
 const renderPosts = (container, posts) => {
   const ulEl = document.createElement('ul');
@@ -38,13 +38,13 @@ const renderPosts = (container, posts) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const aEl = document.createElement('a');
-    aEl.classList.add('fw-bold')
+    aEl.classList.add('fw-bold');
     aEl.href = post.link;
     aEl.dataset.id = post.id;
     aEl.dataset.bsToggle = 'modal';
     aEl.dataset.bsModal = '#modal';
     aEl.textContent = post.title;
-    aEl.target = '_blank'
+    aEl.target = '_blank';
     liEl.appendChild(aEl);
 
     const buttonEl = document.createElement('button');
@@ -60,7 +60,7 @@ const renderPosts = (container, posts) => {
   });
 
   container.appendChild(ulEl);
-}
+};
 
 const renderFeeds = (container, feeds) => {
   const ulEl = document.createElement('ul');
@@ -77,9 +77,9 @@ const renderFeeds = (container, feeds) => {
     liEl.appendChild(h3El);
     liEl.appendChild(pEl);
     ulEl.appendChild(liEl);
-  })
-  container.appendChild(ulEl)
-}
+  });
+  container.appendChild(ulEl);
+};
 
 const renderLinks = (content) => {
   const postsEl = document.querySelector('div.posts');
@@ -90,7 +90,7 @@ const renderLinks = (content) => {
   const cardBorderElposts = postsEl.querySelector('.border-0');
   renderPosts(cardBorderElposts, content.posts);
 
-  const cardBorderElfeeds = feedsEl.querySelector('.border-0')
+  const cardBorderElfeeds = feedsEl.querySelector('.border-0');
   renderFeeds(cardBorderElfeeds, content.feeds);
   return content;
 };
@@ -118,7 +118,6 @@ const renderModal = (post) => {
 
   const contentDivEl = document.createElement('div');
   contentDivEl.classList.add('modal-content');
-
 
   const headerDivEl = document.createElement('div');
   headerDivEl.classList.add('modal-header');
@@ -166,6 +165,6 @@ const renderModal = (post) => {
   dialogDivEl.appendChild(contentDivEl);
   modalDivEl.appendChild(dialogDivEl);
   document.body.prepend(modalDivEl);
-}
+};
 
 export { renderForm, renderLinks, renderModal };

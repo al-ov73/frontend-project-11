@@ -7,6 +7,6 @@ export default {
       urlAdded: 'RSS успешно загружен',
       notRss: 'Ресурс не содержит валидный RSS',
       networkError: 'Ошибка сети',
-    }
-  }
-}
+    },
+  },
+};
