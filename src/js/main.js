@@ -26,6 +26,21 @@ const getDataFromLinks = async (state) => {
   });
 } 
 
+const getDataFromLink = async (state) => {
+  return fetch(`https://allorigins.hexlet.app/get?url=${encodeURIComponent(state.urlToCheck)}`)
+    .then(response => {
+      if (response.ok) {
+        return response.json()
+      }
+      throw new Error('Network response was not ok.')
+    })
+    .catch((error) => {
+      state.form = {
+        isValid: false,
+        validationResult: 'networkError',
+      }
+    });
+} 
 
 export default async () => {
   const i18nextInstance = i18next.createInstance();
@@ -37,12 +52,15 @@ export default async () => {
     },
   });
 
+  // STATE!!!!
   const state = {
     form: {
       isValid: '',
       validationResult: '',
     },
     RssLinks: [],
+    RssLinksContent: [],
+    urlToCheck: '',
   };
 
   const findPostById = (posts, id) => {
@@ -79,10 +97,23 @@ export default async () => {
     })
   }
   
+  // WATCHEDSTATE!!!
   const watchedState = onChange(state, async (path, value, previousValue) => {
-    console.log('state', state)
+    console.log(state)
     if (path === 'form') {
       renderForm(state, i18nextInstance);
+    }
+    if (path === 'urlToCheck') {
+      getDataFromLink(state)
+      .then((content) => {
+        validateIsRss(content, state)
+      });
+    }
+    if (path === 'RssLinksContent') {
+      console.log('rendering', state)
+      const newsList = parseLinks(state.RssLinksContent)
+      renderLinks(newsList)
+      addListenerToButtons(newsList)
     }
     if (path === 'RssLinks') {
       const renderPosts = async () => {
@@ -92,9 +123,7 @@ export default async () => {
           .then((newsList) => addListenerToButtons(newsList))
           .then(() => setTimeout(renderPosts, 5000))
       };
-
       setTimeout(renderPosts, 5000)
-
     }
   });
 

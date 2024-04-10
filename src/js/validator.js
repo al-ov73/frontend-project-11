@@ -6,12 +6,6 @@ const getResponse = async (link, state) => {
     if (response.ok) return response.json()
     throw new Error('Network response was not ok.')
   })
-  .catch((error) => {
-    state.form = {
-      isValid: false,
-      validationResult: 'networkError',
-    }
-  });
 };
 
 const isRss = (response) => {
@@ -23,6 +17,23 @@ const isRss = (response) => {
   }
   return false;
 };
+
+const validateIsRss = (content, state, link) => {
+  if (isRss(content)) {
+    state.form = {
+      isValid: true,
+      validationResult: 'urlAdded',
+    }
+    state.RssLinksContent.push(content);
+    state.RssLinks.push(link);
+  } else {
+    state.form = {
+      isValid: false,
+      validationResult: 'notRss',
+    }
+  }
+}
+
 
 export default async (inputUrlObj, state) => {
   const schema = yup.object({
@@ -37,23 +48,15 @@ export default async (inputUrlObj, state) => {
         }
       } else {
         getResponse(inputUrlObj.url, state)
-        .then((content) => {
-          console.log('content', content)
-          const RssValidatResult = isRss(content);
-          if (RssValidatResult) {
-            state.form = {
-              isValid: true,
-              validationResult: 'urlAdded',
-            };
-            state.RssLinks.push(inputUrlObj.url)
-          } else {
-            state.form = {
-              isValid: false,
-              validationResult: 'notRss',
-            }
+        .then((response) => {
+          validateIsRss(response, state, inputUrlObj.url)
+        })
+        .catch(() => {
+          state.form = {
+            isValid: false,
+            validationResult: 'networkError',
           }
         })
-        .catch(() => {});
       }
     })
     .catch(() => {
