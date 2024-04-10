@@ -112,6 +112,7 @@ export default async () => {
     if (path === 'RssLinksContent') {
       console.log('rendering', state)
       const newsList = parseLinks(state.RssLinksContent)
+      console.log(newsList)
       renderLinks(newsList)
       addListenerToButtons(newsList)
     }

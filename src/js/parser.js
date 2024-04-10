@@ -20,7 +20,11 @@ export default (data) => {
       content.posts.push(newsPost);
       postId += 1;
     })
-    content.feeds.push(doc.querySelector('title').textContent);
+    const feedInfo = {
+      title: doc.querySelector('title').textContent,
+      description: doc.querySelector('description').textContent,
+    }
+    content.feeds.push(feedInfo);
     feedId += 1;
   })
   return content;

@@ -70,8 +70,12 @@ const renderFeeds = (container, feeds) => {
     liEl.classList.add('list-group-item', 'border-0', 'border-end-0');
     const h3El = document.createElement('h3');
     h3El.classList.add('h6', 'm-0');
-    h3El.textContent = feed;
+    h3El.textContent = feed.title;
+    const pEl = document.createElement('p');
+    pEl.classList.add('m-0', 'small', 'text-black-50');
+    pEl.textContent = feed.description;
     liEl.appendChild(h3El);
+    liEl.appendChild(pEl);
     ulEl.appendChild(liEl);
   })
   container.appendChild(ulEl)
