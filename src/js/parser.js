@@ -1,4 +1,4 @@
-export default (data) => {
+export default (feeds) => {
   const parser = new DOMParser();
   let postId = 1;
   let feedId = 1;
@@ -6,7 +6,7 @@ export default (data) => {
     feeds: [],
     posts: [],
   };
-  data.forEach((feed) => {
+  feeds.forEach((feed) => {
     const doc = parser.parseFromString(feed.contents, 'text/html');
     const postsInFeed = [...doc.querySelectorAll('item')];
     postsInFeed.forEach((post) => {

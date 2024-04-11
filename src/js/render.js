@@ -92,7 +92,6 @@ const renderLinks = (content) => {
 
   const cardBorderElfeeds = feedsEl.querySelector('.border-0');
   renderFeeds(cardBorderElfeeds, content.feeds);
-  return content;
 };
 
 const renderModal = (post) => {

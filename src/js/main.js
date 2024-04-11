@@ -80,23 +80,22 @@ export default async () => {
 
   // WATCHEDSTATE
   const watchedState = onChange(state, async (path) => {
-    console.log(state);
     if (path === 'form') {
       renderForm(state, i18nextInstance);
     }
     if (path === 'RssLinksContent') {
-      console.log('rendering', state);
-      const newsList = parseLinks(state.RssLinksContent);
-      console.log(newsList);
-      renderLinks(newsList);
-      addListenerToButtons(newsList);
+      const pageContent = parseLinks(state.RssLinksContent);
+      renderLinks(pageContent);
+      addListenerToButtons(pageContent);
     }
     if (path === 'RssLinks') {
       const renderPosts = async () => {
         getDataFromLinks(state)
           .then((data) => parseLinks(data))
-          .then((newsList) => renderLinks(newsList))
-          .then((newsList) => addListenerToButtons(newsList))
+          .then((pageContent) => {
+            renderLinks(pageContent);
+            addListenerToButtons(pageContent);
+          })
           .then(() => setTimeout(renderPosts, 5000));
       };
       setTimeout(renderPosts, 5000);
