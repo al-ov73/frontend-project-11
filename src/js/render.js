@@ -1,3 +1,5 @@
+import parseLinks from './parser.js';
+
 const renderForm = (state, i18nextInstance) => {
   const form = document.querySelector('form');
   const feedbackEl = document.querySelector('.feedback');
@@ -166,4 +168,34 @@ const renderModal = (post) => {
   document.body.prepend(modalDivEl);
 };
 
-export { renderForm, renderLinks, renderModal };
+const addListenerToModalButtons = () => {
+  const modalDivEl = document.querySelector('div.modal');
+  const closeButtons = modalDivEl.querySelectorAll('button');
+  closeButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      modalDivEl.classList.remove('show');
+      modalDivEl.removeAttribute('role');
+      modalDivEl.setAttribute('style', 'display: none;');
+    });
+  });
+};
+
+const addListenerToButtons = (content) => {
+  const buttons = document.querySelectorAll('button[data-bs-toggle]');
+  buttons.forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const buttonId = e.target.dataset.id;
+      const post = findPostById(content.posts, Number(buttonId));
+      renderModal(post);
+      addListenerToModalButtons();
+    });
+  });
+};
+
+const renderPageContent = (data) => {
+  const pageContent = parseLinks(data)
+  renderLinks(pageContent);
+  addListenerToButtons(pageContent);
+};
+
+export { renderForm, renderLinks, renderModal, renderPageContent };

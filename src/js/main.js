@@ -4,8 +4,8 @@ import i18next from 'i18next';
 import ru from './locales/ru.js';
 import '../scss/styles.scss';
 import { validateUrl, validateIsRss } from './validator.js';
-import { renderForm, renderLinks, renderModal } from './render.js';
-import parseLinks from './parser.js';
+import { renderForm, renderLinks, renderModal, renderPageContent } from './render.js';
+
 
 const getDataFromLink = (link) => {
   const host = 'https://allorigins.hexlet.app/';
@@ -51,29 +51,15 @@ const app = async () => {
     return result;
   };
 
-  const addListenerToModalButtons = () => {
-    const modalDivEl = document.querySelector('div.modal');
-    const closeButtons = modalDivEl.querySelectorAll('button');
-    closeButtons.forEach((button) => {
-      button.addEventListener('click', () => {
-        modalDivEl.classList.remove('show');
-        modalDivEl.removeAttribute('role');
-        modalDivEl.setAttribute('style', 'display: none;');
-      });
-    });
-  };
+ 
 
-  const addListenerToButtons = (content) => {
-    const buttons = document.querySelectorAll('button[data-bs-toggle]');
-    buttons.forEach((button) => {
-      button.addEventListener('click', (e) => {
-        const buttonId = e.target.dataset.id;
-        const post = findPostById(content.posts, Number(buttonId));
-        renderModal(post);
-        addListenerToModalButtons();
-      });
-    });
-  };
+
+const updatePageContent = async (state) => {
+  getDataFromLinks(state)
+    .then((data) => renderPageContent(data))
+    .then(() => setTimeout(updatePageContent, 5000));
+};
+setTimeout(() => updatePageContent(state), 5000);
 
   // STATE
   const state = {
@@ -92,21 +78,13 @@ const app = async () => {
       renderForm(state, i18nextInstance);
     }
     if (path === 'RssLinksContent') {
+      // ПРОВЕРИТЬ НИЖЕ!
       const pageContent = parseLinks(state.RssLinksContent);
       renderLinks(pageContent);
       addListenerToButtons(pageContent);
     }
     if (path === 'RssLinks') {
-      const renderPosts = async () => {
-        getDataFromLinks(state)
-          .then((data) => parseLinks(data))
-          .then((pageContent) => {
-            renderLinks(pageContent);
-            addListenerToButtons(pageContent);
-          })
-          .then(() => setTimeout(renderPosts, 5000));
-      };
-      setTimeout(renderPosts, 5000);
+      renderPageContent();
     }
   });
 
