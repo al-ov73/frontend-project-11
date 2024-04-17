@@ -33,14 +33,18 @@ const renderContainer = (container, title) => {
   container.appendChild(cardBorderEl);
 };
 
-const renderPosts = (container, posts) => {
+const renderPosts = (container, posts, state) => {
   const ulEl = document.createElement('ul');
   ulEl.classList.add('list-group', 'border-0', 'rounded-0');
   posts.forEach((post) => {
     const liEl = document.createElement('li');
     liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
     const aEl = document.createElement('a');
-    aEl.classList.add('fw-bold');
+    if (state.checkedPosts.includes(post.id)) {
+      aEl.classList.add('fw-normal', 'link-secondary');
+    } else {
+      aEl.classList.add('fw-bold');
+    }
     aEl.href = post.link;
     aEl.dataset.id = post.id;
     aEl.dataset.bsToggle = 'modal';
@@ -57,7 +61,6 @@ const renderPosts = (container, posts) => {
     buttonEl.dataset.bsModal = '#modal';
     buttonEl.textContent = 'Просмотр';
     liEl.appendChild(buttonEl);
-
     ulEl.appendChild(liEl);
   });
 
@@ -83,14 +86,14 @@ const renderFeeds = (container, feeds) => {
   container.appendChild(ulEl);
 };
 
-const renderLinks = (content) => {
+const renderLinks = (content, state) => {
   const postsEl = document.querySelector('div.posts');
   renderContainer(postsEl, 'Посты');
   const feedsEl = document.querySelector('div.feeds');
   renderContainer(feedsEl, 'Фиды');
 
   const cardBorderElposts = postsEl.querySelector('.border-0');
-  renderPosts(cardBorderElposts, content.posts);
+  renderPosts(cardBorderElposts, content.posts, state);
 
   const cardBorderElfeeds = feedsEl.querySelector('.border-0');
   renderFeeds(cardBorderElfeeds, content.feeds);
@@ -180,11 +183,22 @@ const addListenerToModalButtons = () => {
   });
 };
 
-const addListenerToButtons = (content) => {
+const findPostById = (posts, id) => {
+  let result = null;
+  posts.forEach((post) => {
+    if (post.id === id) {
+      result = post;
+    }
+  });
+  return result;
+};
+
+const addListenerToButtons = (content, state) => {
   const buttons = document.querySelectorAll('button[data-bs-toggle]');
   buttons.forEach((button) => {
     button.addEventListener('click', (e) => {
       const buttonId = e.target.dataset.id;
+      state.checkedPosts.push(Number(buttonId));
       const post = findPostById(content.posts, Number(buttonId));
       renderModal(post);
       addListenerToModalButtons();
@@ -192,10 +206,10 @@ const addListenerToButtons = (content) => {
   });
 };
 
-const renderPageContent = (data) => {
+const renderPageContent = (data, state) => {
   const pageContent = parseLinks(data)
-  renderLinks(pageContent);
-  addListenerToButtons(pageContent);
+  renderLinks(pageContent, state);
+  addListenerToButtons(pageContent, state);
 };
 
 export { renderForm, renderLinks, renderModal, renderPageContent };

@@ -1,4 +1,4 @@
-export default (feeds) => {
+const parseLinks = (feeds) => {
   const parser = new DOMParser();
   let postId = 1;
   let feedId = 1;
@@ -29,3 +29,5 @@ export default (feeds) => {
   });
   return content;
 };
+
+export default parseLinks;

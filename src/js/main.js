@@ -21,7 +21,7 @@ const getDataFromLink = (link) => {
 };
 
 const getDataFromLinks = async (state) => {
-  const links = state.RssLinks;
+  const links = state.rssLinks;
   const promises = links.map((link) => getDataFromLink(link)
     .then((v) => ({ result: 'success', data: v }))
     .catch((e) => ({ result: 'error', error: e })));
@@ -41,50 +41,31 @@ const app = async () => {
     },
   });
 
-  const findPostById = (posts, id) => {
-    let result = null;
-    posts.forEach((post) => {
-      if (post.id === id) {
-        result = post;
-      }
-    });
-    return result;
-  };
-
- 
-
-
-const updatePageContent = async (state) => {
-  getDataFromLinks(state)
-    .then((data) => renderPageContent(data))
-    .then(() => setTimeout(updatePageContent, 5000));
-};
-setTimeout(() => updatePageContent(state), 5000);
-
   // STATE
   const state = {
     form: {
       isValid: '',
       validationResult: '',
     },
-    RssLinks: [],
-    RssLinksContent: [],
+    rssLinks: [],
+    rssLinksContent: [],
+    checkedPosts: [],
   };
+
+  const updatePageContent = async (state) => {
+    getDataFromLinks(state)
+      .then((data) => renderPageContent(data, state))
+      .then(() => setTimeout(() => updatePageContent(state), 5000));
+  };
+  setTimeout(() => updatePageContent(state), 5000);
 
   // WATCHEDSTATE
   const watchedState = onChange(state, async (path) => {
-    console.log(state);
     if (path === 'form') {
       renderForm(state, i18nextInstance);
     }
-    if (path === 'RssLinksContent') {
-      // ПРОВЕРИТЬ НИЖЕ!
-      const pageContent = parseLinks(state.RssLinksContent);
-      renderLinks(pageContent);
-      addListenerToButtons(pageContent);
-    }
-    if (path === 'RssLinks') {
-      renderPageContent();
+    if (path === 'rssLinksContent') {
+      renderPageContent(state.rssLinksContent, state);
     }
   });
 
@@ -97,7 +78,7 @@ setTimeout(() => updatePageContent(state), 5000);
     validateUrl(inputUrlObj)
       .then((urlValidationResult) => {
         if (urlValidationResult) {
-          if (state.RssLinks.includes(inputUrlObj.url)) {
+          if (state.rssLinks.includes(inputUrlObj.url)) {
             watchedState.form = {
               isValid: false,
               validationResult: 'urlExist',
@@ -115,8 +96,8 @@ setTimeout(() => updatePageContent(state), 5000);
                     isValid: true,
                     validationResult: 'urlAdded',
                   };
-                  watchedState.RssLinksContent.push(urlResponse);
-                  watchedState.RssLinks.push(inputUrlObj.url);
+                  watchedState.rssLinksContent.push(urlResponse);
+                  watchedState.rssLinks.push(inputUrlObj.url);
                 } else {
                   watchedState.form = {
                     isValid: false,
