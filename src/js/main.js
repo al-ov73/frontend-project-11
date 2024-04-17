@@ -9,7 +9,7 @@ import parseLinks from './parser.js';
 
 const getDataFromLink = (link) => {
   const host = 'https://allorigins.hexlet.app/';
-  const params = `get?url=${encodeURIComponent(link)}`;
+  const params = `get?disableCache=true&url=${encodeURIComponent(link)}`;
   const proxyUrl = new URL(params, host);
   return fetch(proxyUrl)
     .then((response) => {
