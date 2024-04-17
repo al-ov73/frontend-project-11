@@ -3,11 +3,12 @@ import * as yup from 'yup';
 const validateIsRss = (response) => {
   const parser = new DOMParser();
   const content = response.contents;
-  const doc = parser.parseFromString(content, 'text/html');
-  if (doc.querySelector('channel')) {
-    return true;
+  const doc = parser.parseFromString(content, 'application/xml');
+  const errorNode = doc.querySelector("parsererror");
+  if (errorNode) {
+    return false;
   }
-  return false;
+  return true;
 };
 
 const validateUrl = async (inputUrlObj) => {

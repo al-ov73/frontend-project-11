@@ -60,7 +60,7 @@ const app = async () => {
   setTimeout(() => updatePageContent(state), 5000);
 
   // WATCHEDSTATE
-  const watchedState = onChange(state, async (path) => {
+  const watchedState = onChange(state, (path) => {
     if (path === 'form') {
       renderForm(state, i18nextInstance);
     }
