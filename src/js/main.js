@@ -57,7 +57,7 @@ const app = async () => {
       .then((data) => renderPageContent(data, state))
       .then(() => setTimeout(() => updatePageContent(state), 5000));
   };
-  setTimeout(() => updatePageContent(state), 5000);
+  // setTimeout(() => updatePageContent(state), 5000);
 
   // WATCHEDSTATE
   const watchedState = onChange(state, (path) => {

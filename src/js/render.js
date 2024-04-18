@@ -33,35 +33,41 @@ const renderContainer = (container, title) => {
   container.appendChild(cardBorderEl);
 };
 
-const renderPosts = (container, posts, state) => {
+const renderPosts = (container, feeds, state) => {
   const ulEl = document.createElement('ul');
   ulEl.classList.add('list-group', 'border-0', 'rounded-0');
-  posts.forEach((post) => {
-    const liEl = document.createElement('li');
-    liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-    const aEl = document.createElement('a');
-    if (state.checkedPosts.includes(post.id)) {
-      aEl.classList.add('fw-normal', 'link-secondary');
-    } else {
-      aEl.classList.add('fw-bold');
-    }
-    aEl.href = post.link;
-    aEl.dataset.id = post.id;
-    aEl.dataset.bsToggle = 'modal';
-    aEl.dataset.bsModal = '#modal';
-    aEl.textContent = post.title;
-    aEl.target = '_blank';
-    liEl.appendChild(aEl);
+  feeds.forEach((feed) => {
+    const postsInFeed = [...feed.querySelectorAll('item')];
+    postsInFeed.forEach((post) => {  
+      const liEl = document.createElement('li');
+      liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+      const aEl = document.createElement('a');
 
-    const buttonEl = document.createElement('button');
-    buttonEl.type = 'button';
-    buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    buttonEl.dataset.id = post.id;
-    buttonEl.dataset.bsToggle = 'modal';
-    buttonEl.dataset.bsModal = '#modal';
-    buttonEl.textContent = 'Просмотр';
-    liEl.appendChild(buttonEl);
-    ulEl.appendChild(liEl);
+      //ОБНОВИТЬ В СТЕЙТЕ
+      if (state.checkedPosts.includes(feed.id)) {
+        aEl.classList.add('fw-normal', 'link-secondary');
+      } else {
+        aEl.classList.add('fw-bold');
+      }
+      aEl.href = post.querySelector('link').textContent;
+      aEl.dataset.id = post.id;
+      
+      aEl.dataset.bsToggle = 'modal';
+      aEl.dataset.bsModal = '#modal';
+      aEl.textContent = post.querySelector('title').textContent;
+      aEl.target = '_blank';
+      liEl.appendChild(aEl);
+
+      const buttonEl = document.createElement('button');
+      buttonEl.type = 'button';
+      buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+      buttonEl.dataset.id = post.id;
+      buttonEl.dataset.bsToggle = 'modal';
+      buttonEl.dataset.bsModal = '#modal';
+      buttonEl.textContent = 'Просмотр';
+      liEl.appendChild(buttonEl);
+      ulEl.appendChild(liEl);
+    });
   });
 
   container.appendChild(ulEl);
@@ -75,10 +81,10 @@ const renderFeeds = (container, feeds) => {
     liEl.classList.add('list-group-item', 'border-0', 'border-end-0');
     const h3El = document.createElement('h3');
     h3El.classList.add('h6', 'm-0');
-    h3El.textContent = feed.title;
+    h3El.textContent = feed.querySelector('title').textContent;
     const pEl = document.createElement('p');
     pEl.classList.add('m-0', 'small', 'text-black-50');
-    pEl.textContent = feed.description;
+    pEl.textContent = feed.querySelector('description').textContent;
     liEl.appendChild(h3El);
     liEl.appendChild(pEl);
     ulEl.appendChild(liEl);
@@ -93,10 +99,10 @@ const renderLinks = (content, state) => {
   renderContainer(feedsEl, 'Фиды');
 
   const cardBorderElposts = postsEl.querySelector('.border-0');
-  renderPosts(cardBorderElposts, content.posts, state);
+  renderPosts(cardBorderElposts, content, state);
 
   const cardBorderElfeeds = feedsEl.querySelector('.border-0');
-  renderFeeds(cardBorderElfeeds, content.feeds);
+  renderFeeds(cardBorderElfeeds, content);
 };
 
 const renderModal = (post) => {
@@ -183,13 +189,20 @@ const addListenerToModalButtons = () => {
   });
 };
 
-const findPostById = (posts, id) => {
+const findPostById = (content, id) => {
   let result = null;
-  posts.forEach((post) => {
-    if (post.id === id) {
-      result = post;
-    }
+  content.forEach((feed) => {
+    const postsInFeed = [...feed.querySelectorAll('item')];
+    postsInFeed.forEach((post) => {
+      if (post.id === id) {
+        result = post;
+      }
+    })
+  
   });
+  // title
+  // descroption
+  // link
   return result;
 };
 
@@ -199,7 +212,8 @@ const addListenerToButtons = (content, state) => {
     button.addEventListener('click', (e) => {
       const buttonId = e.target.dataset.id;
       state.checkedPosts.push(Number(buttonId));
-      const post = findPostById(content.posts, Number(buttonId));
+
+      const post = findPostById(content, Number(buttonId));
       renderModal(post);
       addListenerToModalButtons();
     });
