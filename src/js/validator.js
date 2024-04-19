@@ -4,7 +4,7 @@ const validateIsRss = (response) => {
   const parser = new DOMParser();
   const content = response.contents;
   const doc = parser.parseFromString(content, 'application/xml');
-  const errorNode = doc.querySelector("parsererror");
+  const errorNode = doc.querySelector('parsererror');
   if (errorNode) {
     return false;
   }

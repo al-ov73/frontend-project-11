@@ -4,8 +4,9 @@ import i18next from 'i18next';
 import ru from './locales/ru.js';
 import '../scss/styles.scss';
 import { validateUrl, validateIsRss } from './validator.js';
-import { renderForm, renderLinks, renderModal, renderPageContent } from './render.js';
-
+import {
+  renderForm, renderPageContent,
+} from './render.js';
 
 const getDataFromLink = (link) => {
   const host = 'https://allorigins.hexlet.app/';
@@ -41,7 +42,12 @@ const app = async () => {
     },
   });
 
-  // STATE
+  const updatePageContent = async (state) => {
+    getDataFromLinks(state)
+      .then((data) => renderPageContent(data, state))
+      .then(() => setTimeout(() => updatePageContent(state), 5000));
+  };
+
   const state = {
     form: {
       isValid: '',
@@ -52,15 +58,10 @@ const app = async () => {
     checkedPosts: [],
   };
 
-  const updatePageContent = async (state) => {
-    getDataFromLinks(state)
-      .then((data) => renderPageContent(data, state))
-      .then(() => setTimeout(() => updatePageContent(state), 5000));
-  };
-  // setTimeout(() => updatePageContent(state), 5000);
+  setTimeout(() => updatePageContent(state), 5000);
 
-  // WATCHEDSTATE
   const watchedState = onChange(state, (path) => {
+    console.log(state);
     if (path === 'form') {
       renderForm(state, i18nextInstance);
     }

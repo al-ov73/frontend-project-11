@@ -42,9 +42,8 @@ const renderPosts = (container, feeds, state) => {
       const liEl = document.createElement('li');
       liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       const aEl = document.createElement('a');
-
-      //ОБНОВИТЬ В СТЕЙТЕ
-      if (state.checkedPosts.includes(feed.id)) {
+      console.log('inside', post.id)
+      if (state.checkedPosts.includes(post.id)) {
         aEl.classList.add('fw-normal', 'link-secondary');
       } else {
         aEl.classList.add('fw-bold');
@@ -94,15 +93,16 @@ const renderFeeds = (container, feeds) => {
 
 const renderLinks = (content, state) => {
   const postsEl = document.querySelector('div.posts');
-  renderContainer(postsEl, 'Посты');
   const feedsEl = document.querySelector('div.feeds');
-  renderContainer(feedsEl, 'Фиды');
+  if (content.length > 0) {
+    renderContainer(postsEl, 'Посты');
+    renderContainer(feedsEl, 'Фиды');
+    const cardBorderElposts = postsEl.querySelector('.border-0');
+    renderPosts(cardBorderElposts, content, state);
 
-  const cardBorderElposts = postsEl.querySelector('.border-0');
-  renderPosts(cardBorderElposts, content, state);
-
-  const cardBorderElfeeds = feedsEl.querySelector('.border-0');
-  renderFeeds(cardBorderElfeeds, content);
+    const cardBorderElfeeds = feedsEl.querySelector('.border-0');
+    renderFeeds(cardBorderElfeeds, content);
+  }
 };
 
 const renderModal = (post) => {
@@ -135,7 +135,7 @@ const renderModal = (post) => {
   const h5El = document.createElement('h5');
   h5El.classList.add('modal-title');
   h5El.setAttribute('id', 'modalLabel');
-  h5El.textContent = post.title;
+  h5El.textContent = post.querySelector('title').textContent;
 
   const buttonEl = document.createElement('button');
   buttonEl.classList.add('btn-close');
@@ -145,14 +145,14 @@ const renderModal = (post) => {
 
   const bodyDivEl = document.createElement('div');
   bodyDivEl.classList.add('modal-body');
-  bodyDivEl.textContent = post.description;
+  bodyDivEl.textContent = post.querySelector('description').textContent;
 
   const footerDivEl = document.createElement('div');
   footerDivEl.classList.add('modal-footer');
 
   const buttonFooterPrimaryEl = document.createElement('a');
   buttonFooterPrimaryEl.classList.add('btn', 'btn-primary', 'full-article');
-  buttonFooterPrimaryEl.href = post.link;
+  buttonFooterPrimaryEl.href = post.querySelector('link').textContent;
   buttonFooterPrimaryEl.target = '_blank';
   buttonFooterPrimaryEl.setAttribute('rel', 'noopener');
   buttonFooterPrimaryEl.setAttribute('rel', 'noreferrer');
@@ -195,14 +195,12 @@ const findPostById = (content, id) => {
     const postsInFeed = [...feed.querySelectorAll('item')];
     postsInFeed.forEach((post) => {
       if (post.id === id) {
+        
         result = post;
       }
     })
   
   });
-  // title
-  // descroption
-  // link
   return result;
 };
 
@@ -211,9 +209,8 @@ const addListenerToButtons = (content, state) => {
   buttons.forEach((button) => {
     button.addEventListener('click', (e) => {
       const buttonId = e.target.dataset.id;
-      state.checkedPosts.push(Number(buttonId));
-
-      const post = findPostById(content, Number(buttonId));
+      state.checkedPosts.push(buttonId);
+      const post = findPostById(content, buttonId);
       renderModal(post);
       addListenerToModalButtons();
     });

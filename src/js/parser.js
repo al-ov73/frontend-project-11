@@ -37,7 +37,6 @@ const parseLinks = (feeds) => {
     });
     return doc;
   })
-  console.log(content[0].body)
   return content;
 };
 
