@@ -1,6 +1,5 @@
 lint:
-	npx eslint --fix src/js/main.js
-	npx eslint --fix src/js/validator.js
+	npx eslint --fix src
 
 start:
 	npx webpack serve

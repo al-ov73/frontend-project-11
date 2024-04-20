@@ -8,5 +8,12 @@ export default {
       notRss: 'Ресурс не содержит валидный RSS',
       networkError: 'Ошибка сети',
     },
+    pageText: {
+      posts: 'Посты',
+      feeds: 'Фиды',
+      readFull: 'Читать полностью',
+      close: 'Закрыть',
+      show: 'Просмотр',
+    },
   },
 };

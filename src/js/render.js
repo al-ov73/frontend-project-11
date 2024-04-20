@@ -33,7 +33,7 @@ const renderContainer = (container, title) => {
   container.appendChild(cardBorderEl);
 };
 
-const renderPosts = (container, feeds, state) => {
+const renderPosts = (container, feeds, state, i18nextInstance) => {
   const ulEl = document.createElement('ul');
   ulEl.classList.add('list-group', 'border-0', 'rounded-0');
   feeds.forEach((feed) => {
@@ -42,7 +42,6 @@ const renderPosts = (container, feeds, state) => {
       const liEl = document.createElement('li');
       liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       const aEl = document.createElement('a');
-      console.log('inside', post.id);
       if (state.checkedPosts.includes(post.id)) {
         aEl.classList.add('fw-normal', 'link-secondary');
       } else {
@@ -50,7 +49,6 @@ const renderPosts = (container, feeds, state) => {
       }
       aEl.href = post.querySelector('link').textContent;
       aEl.dataset.id = post.id;
-
       aEl.dataset.bsToggle = 'modal';
       aEl.dataset.bsModal = '#modal';
       aEl.textContent = post.querySelector('title').textContent;
@@ -63,12 +61,11 @@ const renderPosts = (container, feeds, state) => {
       buttonEl.dataset.id = post.id;
       buttonEl.dataset.bsToggle = 'modal';
       buttonEl.dataset.bsModal = '#modal';
-      buttonEl.textContent = 'Просмотр';
+      buttonEl.textContent = i18nextInstance.t('pageText.show');
       liEl.appendChild(buttonEl);
       ulEl.appendChild(liEl);
     });
   });
-
   container.appendChild(ulEl);
 };
 
@@ -91,21 +88,23 @@ const renderFeeds = (container, feeds) => {
   container.appendChild(ulEl);
 };
 
-const renderLinks = (content, state) => {
+const renderLinks = (content, state, i18nextInstance) => {
   const postsEl = document.querySelector('div.posts');
   const feedsEl = document.querySelector('div.feeds');
   if (content.length > 0) {
-    renderContainer(postsEl, 'Посты');
-    renderContainer(feedsEl, 'Фиды');
+    const textPost = i18nextInstance.t('pageText.posts');
+    const textFeed = i18nextInstance.t('pageText.feeds');
+    renderContainer(postsEl, textPost);
+    renderContainer(feedsEl, textFeed);
     const cardBorderElposts = postsEl.querySelector('.border-0');
-    renderPosts(cardBorderElposts, content, state);
+    renderPosts(cardBorderElposts, content, state, i18nextInstance);
 
     const cardBorderElfeeds = feedsEl.querySelector('.border-0');
     renderFeeds(cardBorderElfeeds, content);
   }
 };
 
-const renderModal = (post) => {
+const renderModal = (post, i18nextInstance) => {
   const currentModal = document.querySelector('.modal');
   currentModal.remove();
 
@@ -157,13 +156,13 @@ const renderModal = (post) => {
   buttonFooterPrimaryEl.setAttribute('rel', 'noopener');
   buttonFooterPrimaryEl.setAttribute('rel', 'noreferrer');
   buttonFooterPrimaryEl.setAttribute('role', 'button');
-  buttonFooterPrimaryEl.textContent = 'Читать полностью';
+  buttonFooterPrimaryEl.textContent = i18nextInstance.t('pageText.readFull');
 
   const buttonFooterSecondEl = document.createElement('button');
   buttonFooterSecondEl.classList.add('btn', 'btn-secondary');
   buttonFooterSecondEl.setAttribute('type', 'button');
   buttonFooterSecondEl.dataset.bsDismiss = 'modal';
-  buttonFooterSecondEl.textContent = 'Закрыть';
+  buttonFooterSecondEl.textContent = i18nextInstance.t('pageText.close');
 
   headerDivEl.appendChild(h5El);
   headerDivEl.appendChild(buttonEl);
@@ -202,23 +201,23 @@ const findPostById = (content, id) => {
   return result;
 };
 
-const addListenerToButtons = (content, state) => {
+const addListenerToButtons = (content, state, i18nextInstance) => {
   const buttons = document.querySelectorAll('button[data-bs-toggle]');
   buttons.forEach((button) => {
     button.addEventListener('click', (e) => {
       const buttonId = e.target.dataset.id;
       state.checkedPosts.push(buttonId);
       const post = findPostById(content, buttonId);
-      renderModal(post);
+      renderModal(post, i18nextInstance);
       addListenerToModalButtons();
     });
   });
 };
 
-const renderPageContent = (data, state) => {
+const renderPageContent = (data, state, i18nextInstance) => {
   const pageContent = parseLinks(data);
-  renderLinks(pageContent, state);
-  addListenerToButtons(pageContent, state);
+  renderLinks(pageContent, state, i18nextInstance);
+  addListenerToButtons(pageContent, state, i18nextInstance);
 };
 
 export {

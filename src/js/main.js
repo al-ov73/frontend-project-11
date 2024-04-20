@@ -44,7 +44,7 @@ const app = async () => {
 
   const updatePageContent = async (state) => {
     getDataFromLinks(state)
-      .then((data) => renderPageContent(data, state))
+      .then((data) => renderPageContent(data, state, i18nextInstance))
       .then(() => setTimeout(() => updatePageContent(state), 5000));
   };
 
@@ -66,7 +66,7 @@ const app = async () => {
       renderForm(state, i18nextInstance);
     }
     if (path === 'rssLinksContent') {
-      renderPageContent(state.rssLinksContent, state);
+      renderPageContent(state.rssLinksContent, state, i18nextInstance);
     }
   });
 
