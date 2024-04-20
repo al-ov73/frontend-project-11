@@ -36,7 +36,7 @@ const parseLinks = (feeds) => {
       postId += 1;
     });
     return doc;
-  })
+  });
   return content;
 };
 

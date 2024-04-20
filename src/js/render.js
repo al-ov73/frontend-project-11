@@ -38,11 +38,11 @@ const renderPosts = (container, feeds, state) => {
   ulEl.classList.add('list-group', 'border-0', 'rounded-0');
   feeds.forEach((feed) => {
     const postsInFeed = [...feed.querySelectorAll('item')];
-    postsInFeed.forEach((post) => {  
+    postsInFeed.forEach((post) => {
       const liEl = document.createElement('li');
       liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
       const aEl = document.createElement('a');
-      console.log('inside', post.id)
+      console.log('inside', post.id);
       if (state.checkedPosts.includes(post.id)) {
         aEl.classList.add('fw-normal', 'link-secondary');
       } else {
@@ -50,7 +50,7 @@ const renderPosts = (container, feeds, state) => {
       }
       aEl.href = post.querySelector('link').textContent;
       aEl.dataset.id = post.id;
-      
+
       aEl.dataset.bsToggle = 'modal';
       aEl.dataset.bsModal = '#modal';
       aEl.textContent = post.querySelector('title').textContent;
@@ -195,11 +195,9 @@ const findPostById = (content, id) => {
     const postsInFeed = [...feed.querySelectorAll('item')];
     postsInFeed.forEach((post) => {
       if (post.id === id) {
-        
         result = post;
       }
-    })
-  
+    });
   });
   return result;
 };
@@ -218,9 +216,11 @@ const addListenerToButtons = (content, state) => {
 };
 
 const renderPageContent = (data, state) => {
-  const pageContent = parseLinks(data)
+  const pageContent = parseLinks(data);
   renderLinks(pageContent, state);
   addListenerToButtons(pageContent, state);
 };
 
-export { renderForm, renderLinks, renderModal, renderPageContent };
+export {
+  renderForm, renderLinks, renderModal, renderPageContent,
+};
