@@ -176,18 +176,6 @@ const renderModal = (post, i18nextInstance) => {
   document.body.prepend(modalDivEl);
 };
 
-const addListenerToModalButtons = () => {
-  const modalDivEl = document.querySelector('div.modal');
-  const closeButtons = modalDivEl.querySelectorAll('button');
-  closeButtons.forEach((button) => {
-    button.addEventListener('click', () => {
-      modalDivEl.classList.remove('show');
-      modalDivEl.removeAttribute('role');
-      modalDivEl.setAttribute('style', 'display: none;');
-    });
-  });
-};
-
 const findPostById = (content, id) => {
   let result = null;
   content.forEach((feed) => {
@@ -202,14 +190,25 @@ const findPostById = (content, id) => {
 };
 
 const addListenerToButtons = (content, state, i18nextInstance) => {
-  const buttons = document.querySelectorAll('button[data-bs-toggle]');
+  const buttons = document.querySelectorAll('button');
   buttons.forEach((button) => {
     button.addEventListener('click', (e) => {
-      const buttonId = e.target.dataset.id;
-      state.checkedPosts.push(buttonId);
-      const post = findPostById(content, buttonId);
-      renderModal(post, i18nextInstance);
-      addListenerToModalButtons();
+      const clickedButton = e.target;
+      // post show button
+      if (clickedButton.getAttribute('data-bs-toggle') === 'modal') {
+        const buttonId = clickedButton.dataset.id;
+        state.checkedPosts.push(buttonId);
+        const post = findPostById(content, buttonId);
+        renderModal(post, i18nextInstance);
+        addListenerToButtons(content, state, i18nextInstance);
+      }
+      // modal button
+      if (clickedButton.getAttribute('data-bs-dismiss') === 'modal') {
+        const modalDivEl = document.querySelector('div.modal');
+        modalDivEl.classList.remove('show');
+        modalDivEl.removeAttribute('role');
+        modalDivEl.setAttribute('style', 'display: none;');
+      }
     });
   });
 };
