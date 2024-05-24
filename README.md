@@ -17,4 +17,4 @@ npm install
 make start
 ```
 <br><br>
-<image src="./images/agregator.png" alt="Текст с описанием картинки">
+<image src="./images/agregator.png" alt="">

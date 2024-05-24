@@ -3,7 +3,7 @@ import parseLinks from './parser.js';
 const renderForm = (state, i18nextInstance) => {
   const form = document.querySelector('form');
   const feedbackEl = document.querySelector('.feedback');
-  const feedback = state.form.validationResult;
+  const feedback = state.form.urlCheckResult;
   if (state.form.isValid === false) {
     const inputEl = form.querySelector('input');
     inputEl.classList.add('is-invalid');

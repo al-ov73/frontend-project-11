@@ -1,5 +1,6 @@
 import onChange from 'on-change';
 import i18next from 'i18next';
+import axios from 'axios';
 
 import ru from './locales/ru.js';
 import '../scss/styles.scss';
@@ -8,14 +9,19 @@ import {
   renderForm, renderPageContent,
 } from './render.js';
 
+const addProxy = (url) => {
+  const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
+  urlWithProxy.searchParams.set('url', url);
+  urlWithProxy.searchParams.set('disableCache', 'true');
+  return urlWithProxy.toString();
+};
+
 const getDataFromLink = (link) => {
-  const host = 'https://allorigins.hexlet.app/';
-  const params = `get?disableCache=true&url=${encodeURIComponent(link)}`;
-  const proxyUrl = new URL(params, host);
-  return fetch(proxyUrl)
+  const proxyUrl = addProxy(link);
+  return axios.get(proxyUrl)
     .then((response) => {
-      if (response.ok) {
-        return response.json();
+      if (response.status === 200) {
+        return response.data;
       }
       throw new Error('Network response was not ok.');
     });
@@ -32,33 +38,27 @@ const getDataFromLinks = async (state) => {
       .map((feed) => feed.data));
 };
 
-const app = async () => {
-  const i18nextInstance = i18next.createInstance();
-  i18nextInstance.init({
-    lng: 'ru',
-    debug: true,
-    resources: {
-      ru,
-    },
-  });
+// const app = async () => {
+//   const i18nextInstance = i18next.createInstance();
+//   i18nextInstance.init({
+//     lng: 'ru',
+//     debug: true,
+//     resources: {
+//       ru,
+//     },
+//   });
 
-  const updatePageContent = async (state) => {
-    getDataFromLinks(state)
-      .then((data) => renderPageContent(data, state, i18nextInstance))
-      .then(() => setTimeout(() => updatePageContent(state), 5000));
-  };
+const app = async () => {
 
   const state = {
     form: {
-      isValid: '',
-      validationResult: '',
+      isValid: false,
+      urlCheckResult: 'urlAdded',
     },
     rssLinks: [],
     rssLinksContent: [],
     checkedPosts: [],
   };
-
-  setTimeout(() => updatePageContent(state), 5000);
 
   const watchedState = onChange(state, (path) => {
     if (path === 'form') {
@@ -81,7 +81,7 @@ const app = async () => {
           if (state.rssLinks.includes(inputUrlObj.url)) {
             watchedState.form = {
               isValid: false,
-              validationResult: 'urlExist',
+              urlCheckResult: 'urlExist',
             };
           } else {
             let urlResponse;
@@ -94,32 +94,49 @@ const app = async () => {
                 if (rssValidationResult) {
                   watchedState.form = {
                     isValid: true,
-                    validationResult: 'urlAdded',
+                    urlCheckResult: 'urlAdded',
                   };
                   watchedState.rssLinksContent.push(urlResponse);
                   watchedState.rssLinks.push(inputUrlObj.url);
                 } else {
                   watchedState.form = {
                     isValid: false,
-                    validationResult: 'notRss',
+                    urlCheckResult: 'notRss',
                   };
                 }
               })
               .catch(() => {
                 watchedState.form = {
                   isValid: false,
-                  validationResult: 'networkError',
+                  urlCheckResult: 'networkError',
                 };
               });
           }
         } else {
           watchedState.form = {
             isValid: false,
-            validationResult: 'urlValidationError',
+            urlCheckResult: 'urlValidationError',
           };
         }
       });
   });
+
+  const i18nextInstance = i18next.createInstance();
+  i18nextInstance.init({
+    lng: 'ru',
+    debug: true,
+    resources: {
+      ru,
+    },
+  })
+  .then((i18nextInstance) => i18nextInstance);
+  const updatePageContent = async (state) => {
+    console.log('check')
+    getDataFromLinks(state)
+      .then((data) => renderPageContent(data, state, i18nextInstance))
+      .finally(() => setTimeout(() => updatePageContent(state), 5000));
+  };
+  updatePageContent(state)
 };
 
 export default app;
