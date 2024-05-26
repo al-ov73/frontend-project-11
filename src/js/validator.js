@@ -15,9 +15,7 @@ const validateUrl = async (inputUrlObj) => {
   const schema = yup.object({
     url: yup.string().url().nullable(),
   });
-  return schema.validate(inputUrlObj)
-    .then(() => true)
-    .catch(() => false);
+  return schema.validate(inputUrlObj);
 };
 
 export { validateUrl, validateIsRss };

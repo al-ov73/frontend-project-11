@@ -1,16 +1,14 @@
-const parseLinks = (feeds) => {
+const parseLink = (response) => {
   const parser = new DOMParser();
-  let postId = 1;
-  const content = feeds.map((feed) => {
-    const doc = parser.parseFromString(feed.contents, 'text/html');
-    const postsInFeed = [...doc.querySelectorAll('item')];
-    postsInFeed.forEach((post) => {
-      post.id = postId;
-      postId += 1;
-    });
-    return doc;
-  });
-  return content;
+  const content = response.contents;
+  const doc = parser.parseFromString(content, 'application/xml');
+  const errorNode = doc.querySelector('parsererror');
+  if (errorNode) {
+    throw new Error('not RSS error');
+  }
+  const feedInfo = doc.querySelector('channel');
+  const postsInFeed = [...doc.querySelectorAll('item')];
+  return { feedInfo, postsInFeed };
 };
 
-export default parseLinks;
+export default parseLink;

@@ -16,5 +16,10 @@ git clone git@github.com:al-ov73/frontend-project-11.git && cd frontend-project-
 npm install
 make start
 ```
+Examples of RSS-channels
+```
+http://sports.ru/rss/topnews.xml
+http://news.instaforex.com/en/analytics/rss/?x=JBIH
+```
 <br><br>
 <image src="./images/agregator.png" alt="">

@@ -1,5 +1,3 @@
-import parseLinks from './parser.js';
-
 const renderForm = (state, i18nextInstance) => {
   const form = document.querySelector('form');
   const feedbackEl = document.querySelector('.feedback');
@@ -33,38 +31,38 @@ const renderContainer = (container, title) => {
   container.appendChild(cardBorderEl);
 };
 
-const renderPosts = (container, feeds, state, i18nextInstance) => {
+const renderPosts = (container, state, i18nextInstance) => {
   const ulEl = document.createElement('ul');
   ulEl.classList.add('list-group', 'border-0', 'rounded-0');
-  feeds.forEach((feed) => {
-    const postsInFeed = [...feed.querySelectorAll('item')];
-    postsInFeed.forEach((post) => {
-      const liEl = document.createElement('li');
-      liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-      const aEl = document.createElement('a');
-      if (state.checkedPosts.includes(post.id)) {
-        aEl.classList.add('fw-normal', 'link-secondary');
-      } else {
-        aEl.classList.add('fw-bold');
-      }
-      aEl.href = post.querySelector('link').textContent;
-      aEl.dataset.id = post.id;
-      aEl.dataset.bsToggle = 'modal';
-      aEl.dataset.bsModal = '#modal';
-      aEl.textContent = post.querySelector('title').textContent;
-      aEl.target = '_blank';
-      liEl.appendChild(aEl);
+  let postId = 1;
+  state.rssLinksContent.forEach((post) => {
+    post.id = postId;
+    postId += 1;
+    const liEl = document.createElement('li');
+    liEl.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+    const aEl = document.createElement('a');
+    if (state.checkedPosts.includes(post.id)) {
+      aEl.classList.add('fw-normal', 'link-secondary');
+    } else {
+      aEl.classList.add('fw-bold');
+    }
+    aEl.href = post.querySelector('link').textContent;
+    aEl.dataset.id = post.id;
+    aEl.dataset.bsToggle = 'modal';
+    aEl.dataset.bsModal = '#modal';
+    aEl.textContent = post.querySelector('title').textContent;
+    aEl.target = '_blank';
+    liEl.appendChild(aEl);
 
-      const buttonEl = document.createElement('button');
-      buttonEl.type = 'button';
-      buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-      buttonEl.dataset.id = post.id;
-      buttonEl.dataset.bsToggle = 'modal';
-      buttonEl.dataset.bsModal = '#modal';
-      buttonEl.textContent = i18nextInstance.t('pageText.show');
-      liEl.appendChild(buttonEl);
-      ulEl.appendChild(liEl);
-    });
+    const buttonEl = document.createElement('button');
+    buttonEl.type = 'button';
+    buttonEl.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    buttonEl.dataset.id = post.id;
+    buttonEl.dataset.bsToggle = 'modal';
+    buttonEl.dataset.bsModal = '#modal';
+    buttonEl.textContent = i18nextInstance.t('pageText.show');
+    liEl.appendChild(buttonEl);
+    ulEl.appendChild(liEl);
   });
   container.appendChild(ulEl);
 };
@@ -88,19 +86,19 @@ const renderFeeds = (container, feeds) => {
   container.appendChild(ulEl);
 };
 
-const renderLinks = (content, state, i18nextInstance) => {
+const renderLinks = (state, i18nextInstance) => {
   const postsEl = document.querySelector('div.posts');
   const feedsEl = document.querySelector('div.feeds');
-  if (content.length > 0) {
+  if (state.rssLinksContent.length > 0) {
     const textPost = i18nextInstance.t('pageText.posts');
     const textFeed = i18nextInstance.t('pageText.feeds');
     renderContainer(postsEl, textPost);
     renderContainer(feedsEl, textFeed);
-    const cardBorderElposts = postsEl.querySelector('.border-0');
-    renderPosts(cardBorderElposts, content, state, i18nextInstance);
+    const cardBorderElposts = postsEl.querySelector('.card');
+    renderPosts(cardBorderElposts, state, i18nextInstance);
 
-    const cardBorderElfeeds = feedsEl.querySelector('.border-0');
-    renderFeeds(cardBorderElfeeds, content);
+    const cardBorderElfeeds = feedsEl.querySelector('.card');
+    renderFeeds(cardBorderElfeeds, state.rssLinks);
   }
 };
 
@@ -189,34 +187,29 @@ const findPostById = (content, id) => {
   return result;
 };
 
-const addListenerToButtons = (content, state, i18nextInstance) => {
-  const buttons = document.querySelectorAll('button');
-  buttons.forEach((button) => {
-    button.addEventListener('click', (e) => {
-      const clickedButton = e.target;
-      // post show button
-      if (clickedButton.getAttribute('data-bs-toggle') === 'modal') {
-        const buttonId = clickedButton.dataset.id;
-        state.checkedPosts.push(buttonId);
-        const post = findPostById(content, buttonId);
-        renderModal(post, i18nextInstance);
-        addListenerToButtons(content, state, i18nextInstance);
-      }
-      // modal button
-      if (clickedButton.getAttribute('data-bs-dismiss') === 'modal') {
-        const modalDivEl = document.querySelector('div.modal');
-        modalDivEl.classList.remove('show');
-        modalDivEl.removeAttribute('role');
-        modalDivEl.setAttribute('style', 'display: none;');
-      }
-    });
+const addListenerToModalButtons = () => {
+  const modalDivEl = document.querySelector('div.modal');
+  modalDivEl.addEventListener('click', () => {
+    modalDivEl.classList.remove('show');
+    modalDivEl.removeAttribute('role');
+    modalDivEl.setAttribute('style', 'display: none;');
   });
 };
 
-const renderPageContent = (data, state, i18nextInstance) => {
-  const pageContent = parseLinks(data);
-  renderLinks(pageContent, state, i18nextInstance);
-  addListenerToButtons(pageContent, state, i18nextInstance);
+const addListenerToButtons = (state, i18nextInstance) => {
+  const card = document.querySelector('.card');
+  card.addEventListener('click', (e) => {
+    const buttonId = e.target.dataset.id;
+    state.checkedPosts.push(buttonId);
+    const post = findPostById(state.rssLinksContent, buttonId);
+    renderModal(post, i18nextInstance);
+    addListenerToModalButtons();
+  });
+};
+
+const renderPageContent = (state, i18nextInstance) => {
+  renderLinks(state, i18nextInstance);
+  addListenerToButtons(state, i18nextInstance);
 };
 
 export {

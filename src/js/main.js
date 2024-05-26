@@ -4,10 +4,11 @@ import axios from 'axios';
 
 import ru from './locales/ru.js';
 import '../scss/styles.scss';
-import { validateUrl, validateIsRss } from './validator.js';
+import { validateUrl } from './validator.js';
 import {
   renderForm, renderPageContent,
 } from './render.js';
+import parseLink from './parser.js';
 
 const addProxy = (url) => {
   const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
@@ -38,17 +39,27 @@ const getDataFromLinks = async (state) => {
       .map((feed) => feed.data));
 };
 
-// const app = async () => {
-//   const i18nextInstance = i18next.createInstance();
-//   i18nextInstance.init({
-//     lng: 'ru',
-//     debug: true,
-//     resources: {
-//       ru,
-//     },
-//   });
+const checkLinksContent = async (state, i18nextInstance) => {
+  getDataFromLinks(state)
+    .then((data) => {
+      if (data !== state.rssLinksContent) {
+        renderPageContent(state, i18nextInstance);
+      }
+    })
+    .finally(() => setTimeout(() => checkLinksContent(state), 5000));
+};
 
 const app = async () => {
+  const i18nextInstance = i18next.createInstance();
+  i18nextInstance
+    .init({
+      lng: 'ru',
+      debug: true,
+      resources: {
+        ru,
+      },
+    })
+    .then((newI18nextInstance) => newI18nextInstance);
 
   const state = {
     form: {
@@ -65,7 +76,7 @@ const app = async () => {
       renderForm(state, i18nextInstance);
     }
     if (path === 'rssLinksContent') {
-      renderPageContent(state.rssLinksContent, state, i18nextInstance);
+      renderPageContent(state, i18nextInstance);
     }
   });
 
@@ -76,67 +87,54 @@ const app = async () => {
     const inputUrlObj = Object.fromEntries(formData);
 
     validateUrl(inputUrlObj)
-      .then((urlValidationResult) => {
-        if (urlValidationResult) {
-          if (state.rssLinks.includes(inputUrlObj.url)) {
+      .then(() => {
+        if (state.rssLinks.includes(inputUrlObj.url)) {
+          throw new Error('Url exist');
+        }
+      })
+      .then(() => getDataFromLink(inputUrlObj.url))
+      .then((response) => parseLink(response))
+      .then((response) => {
+        watchedState.form = {
+          isValid: true,
+          urlCheckResult: 'urlAdded',
+        };
+        watchedState.rssLinks.push(response.feedInfo);
+        watchedState.rssLinksContent.push(...response.postsInFeed);
+      })
+      .catch((error) => {
+        switch (error.message) {
+          case 'url must be a valid URL':
+            watchedState.form = {
+              isValid: false,
+              urlCheckResult: 'urlValidationError',
+            };
+            break;
+          case 'Url exist':
             watchedState.form = {
               isValid: false,
               urlCheckResult: 'urlExist',
             };
-          } else {
-            let urlResponse;
-            getDataFromLink(inputUrlObj.url)
-              .then((response) => {
-                urlResponse = response;
-                return validateIsRss(urlResponse);
-              })
-              .then((rssValidationResult) => {
-                if (rssValidationResult) {
-                  watchedState.form = {
-                    isValid: true,
-                    urlCheckResult: 'urlAdded',
-                  };
-                  watchedState.rssLinksContent.push(urlResponse);
-                  watchedState.rssLinks.push(inputUrlObj.url);
-                } else {
-                  watchedState.form = {
-                    isValid: false,
-                    urlCheckResult: 'notRss',
-                  };
-                }
-              })
-              .catch(() => {
-                watchedState.form = {
-                  isValid: false,
-                  urlCheckResult: 'networkError',
-                };
-              });
-          }
-        } else {
-          watchedState.form = {
-            isValid: false,
-            urlCheckResult: 'urlValidationError',
-          };
+            break;
+          case 'Network Error':
+            watchedState.form = {
+              isValid: false,
+              urlCheckResult: 'networkError',
+            };
+            break;
+          case 'not RSS error':
+            watchedState.form = {
+              isValid: false,
+              urlCheckResult: 'notRss',
+            };
+            break;
+          default:
+            console.log(error);
         }
       });
   });
 
-  const i18nextInstance = i18next.createInstance();
-  i18nextInstance.init({
-    lng: 'ru',
-    debug: true,
-    resources: {
-      ru,
-    },
-  })
-  .then((i18nextInstance) => i18nextInstance);
-  const updatePageContent = async (state) => {
-    console.log('check')
-    getDataFromLinks(state)
-      .then((data) => renderPageContent(data, state, i18nextInstance))
-      .finally(() => setTimeout(() => updatePageContent(state), 5000));
-  };
-  updatePageContent(state)
+  checkLinksContent(state, i18nextInstance);
 };
 
 export default app;
