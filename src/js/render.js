@@ -98,7 +98,7 @@ const renderLinks = (state, i18nextInstance) => {
     renderPosts(cardBorderElposts, state, i18nextInstance);
 
     const cardBorderElfeeds = feedsEl.querySelector('.card');
-    renderFeeds(cardBorderElfeeds, state.rssLinks);
+    renderFeeds(cardBorderElfeeds, state.rssInfo);
   }
 };
 
@@ -208,6 +208,7 @@ const addListenerToButtons = (state, i18nextInstance) => {
 };
 
 const renderPageContent = (state, i18nextInstance) => {
+  console.log('new render');
   renderLinks(state, i18nextInstance);
   addListenerToButtons(state, i18nextInstance);
 };

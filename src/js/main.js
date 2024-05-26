@@ -28,27 +28,6 @@ const getDataFromLink = (link) => {
     });
 };
 
-const getDataFromLinks = async (state) => {
-  const links = state.rssLinks;
-  const promises = links.map((link) => getDataFromLink(link)
-    .then((v) => ({ result: 'success', data: v }))
-    .catch((e) => ({ result: 'error', error: e })));
-  return Promise.all(promises)
-    .then((feeds) => feeds
-      .filter((feed) => feed.result === 'success')
-      .map((feed) => feed.data));
-};
-
-const checkLinksContent = async (state, i18nextInstance) => {
-  getDataFromLinks(state)
-    .then((data) => {
-      if (data !== state.rssLinksContent) {
-        renderPageContent(state, i18nextInstance);
-      }
-    })
-    .finally(() => setTimeout(() => checkLinksContent(state), 5000));
-};
-
 const app = async () => {
   const i18nextInstance = i18next.createInstance();
   i18nextInstance
@@ -67,6 +46,7 @@ const app = async () => {
       urlCheckResult: 'urlAdded',
     },
     rssLinks: [],
+    rssInfo: [],
     rssLinksContent: [],
     checkedPosts: [],
   };
@@ -79,6 +59,22 @@ const app = async () => {
       renderPageContent(state, i18nextInstance);
     }
   });
+
+  const checkLinksContent = async (currentState) => {
+    const links = currentState.rssLinks;
+    const promises = links.map((link) => getDataFromLink(link));
+    Promise.all(promises)
+      .then((feeds) => feeds.map((feed) => parseLink(feed)))
+      .then((response) => {
+        const updatedPosts = response.flatMap((channel) => channel.postsInFeed);
+        const oldLinks = currentState.rssLinksContent.map((oldPost) => oldPost.querySelector('link').textContent);
+        const newLinks = updatedPosts.map((newPost) => newPost.querySelector('link').textContent);
+        if (JSON.stringify(oldLinks) !== JSON.stringify(newLinks)) {
+          watchedState.rssLinksContent = updatedPosts;
+        }
+      })
+      .finally(() => setTimeout(() => checkLinksContent(state), 5000));
+  };
 
   const form = document.querySelector('form');
   form.addEventListener('submit', async (e) => {
@@ -99,7 +95,8 @@ const app = async () => {
           isValid: true,
           urlCheckResult: 'urlAdded',
         };
-        watchedState.rssLinks.push(response.feedInfo);
+        watchedState.rssLinks.push(inputUrlObj.url);
+        watchedState.rssInfo.push(response.feedInfo);
         watchedState.rssLinksContent.push(...response.postsInFeed);
       })
       .catch((error) => {
@@ -134,7 +131,7 @@ const app = async () => {
       });
   });
 
-  checkLinksContent(state, i18nextInstance);
+  checkLinksContent(state);
 };
 
 export default app;
