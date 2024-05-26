@@ -132,6 +132,7 @@ const app = async () => {
   });
 
   checkLinksContent(state);
+  checkLinksContent(state);
 };
 
 export default app;
