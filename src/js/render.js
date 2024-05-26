@@ -98,7 +98,7 @@ const renderLinks = (state, i18nextInstance) => {
     renderPosts(cardBorderElposts, state, i18nextInstance);
 
     const cardBorderElfeeds = feedsEl.querySelector('.card');
-    renderFeeds(cardBorderElfeeds, state.rssLinks);
+    renderFeeds(cardBorderElfeeds, state.rssInfo);
   }
 };
 
@@ -174,15 +174,12 @@ const renderModal = (post, i18nextInstance) => {
   document.body.prepend(modalDivEl);
 };
 
-const findPostById = (content, id) => {
+const findPostById = (posts, id) => {
   let result = null;
-  content.forEach((feed) => {
-    const postsInFeed = [...feed.querySelectorAll('item')];
-    postsInFeed.forEach((post) => {
-      if (post.id === id) {
-        result = post;
-      }
-    });
+  posts.forEach((post) => {
+    if (post.id === id) {
+      result = post;
+    }
   });
   return result;
 };
